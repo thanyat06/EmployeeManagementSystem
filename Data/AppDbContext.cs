@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using EmployeeManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,15 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
+    }
+
+    protected override void OnConfiguring(
+        DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            DatabaseConfig.Configure(optionsBuilder);
+        }
     }
 
     public DbSet<Employee> Employees { get; set; } = null!;
@@ -50,3 +60,4 @@ public class AppDbContext : DbContext
         });
     }
 }
+
