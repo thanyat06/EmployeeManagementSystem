@@ -12,9 +12,15 @@ public class Employee
 
     public string Email { get; set; } = string.Empty;
 
-    public string Department { get; set; } = string.Empty;
+    public int DepartmentId { get; set; }
 
     public decimal Salary { get; set; }
 
     public int Age { get; set; }
+
+    public Department Department { get; set; } = null!;
+
+    public ICollection<Attendance> Attendances { get; set; }
+        = new List<Attendance>();
 }
+
