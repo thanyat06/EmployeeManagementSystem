@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using EmployeeManagementSystem.Models;
 using EmployeeManagementSystem.Services;
 
@@ -212,21 +211,27 @@ public class EmployeeMenu
 
     private static bool ReadInt(string prompt, out int value)
     {
-        Console.Write(prompt);
-        if (int.TryParse(Console.ReadLine(), out value))
-            return true;
+        while (true)
+        {
+            Console.Write(prompt);
 
-        Console.WriteLine("Please enter a valid whole number.");
-        return false;
+            if (int.TryParse(Console.ReadLine(), out value))
+                return true;
+
+            Console.WriteLine("Please enter a valid whole number.");
+        }
     }
 
     private static bool ReadDecimal(string prompt, out decimal value)
     {
-        Console.Write(prompt);
-        if (decimal.TryParse(Console.ReadLine(), out value))
-            return true;
+        while (true)
+        {
+            Console.Write(prompt);
 
-        Console.WriteLine("Please enter a valid amount.");
-        return false;
+            if (decimal.TryParse(Console.ReadLine(), out value))
+                return true;
+
+            Console.WriteLine("Please enter a valid amount.");
+        }
     }
 }

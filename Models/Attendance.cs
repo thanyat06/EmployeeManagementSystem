@@ -7,7 +7,7 @@ namespace EmployeeManagementSystem.Models;
 public class Attendance
 {
     public int AttendanceId { get; set; }
-
+    //Foreign Key
     public int EmployeeId { get; set; }
 
     public DateOnly AttendanceDate { get; set; }

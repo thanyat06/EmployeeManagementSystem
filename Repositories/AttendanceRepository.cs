@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using EmployeeManagementSystem.Data;
 using EmployeeManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;

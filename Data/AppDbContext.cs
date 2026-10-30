@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 using EmployeeManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +31,7 @@ public class AppDbContext : DbContext
     public DbSet<Department> Departments { get; set; } = null!;
 
     public DbSet<Attendance> Attendances { get; set; } = null!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
