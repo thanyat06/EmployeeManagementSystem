@@ -16,7 +16,7 @@ public class DepartmentMenu
         _departmentService = new DepartmentService();
     }
 
-    public void Show()
+    public async Task ShowAsync()
     {
         while (true)
         {
@@ -38,13 +38,13 @@ public class DepartmentMenu
                     ViewById();
                     break;
                 case "3":
-                    Add();
+                    await AddAsync();
                     break;
                 case "4":
-                    Update();
+                    await UpdateAsync();
                     break;
                 case "5":
-                    Delete();
+                    await DeleteAsync();
                     break;
                 case "0":
                     return;
@@ -93,7 +93,7 @@ public class DepartmentMenu
             $"Description: {department.Description ?? "N/A"}");
     }
 
-    private void Add()
+    private async Task AddAsync()
     {
         Console.Write("Department name: ");
         string name = Console.ReadLine() ?? "";
@@ -109,13 +109,23 @@ public class DepartmentMenu
                 : description
         };
 
-        Console.WriteLine(
-            _departmentService.AddDepartment(department)
-                ? "Department added successfully."
-                : "Could not add department. Check the details or duplicate name.");
+        try
+        {
+            bool result =
+                await _departmentService.AddDepartmentAsync(department);
+
+            Console.WriteLine(
+                result
+                    ? "Department added successfully."
+                    : "Could not add department. Check the details or duplicate name.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private void Update()
+    private async Task UpdateAsync()
     {
         if (!ReadInt("Enter department ID to update: ", out int id))
             return;
@@ -130,39 +140,63 @@ public class DepartmentMenu
 
         Console.Write($"Name ({department.DepartmentName}): ");
         string name = Console.ReadLine() ?? "";
+
         if (!string.IsNullOrWhiteSpace(name))
             department.DepartmentName = name;
 
         Console.Write($"Description ({department.Description ?? "N/A"}): ");
         string description = Console.ReadLine() ?? "";
+
         if (!string.IsNullOrWhiteSpace(description))
             department.Description = description;
 
-        Console.WriteLine(
-            _departmentService.UpdateDepartment(department)
-                ? "Department updated successfully."
-                : "Could not update department. Check the details.");
+        try
+        {
+            bool result =
+                await _departmentService.UpdateDepartmentAsync(department);
+
+            Console.WriteLine(
+                result
+                    ? "Department updated successfully."
+                    : "Could not update department. Check the details.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private void Delete()
+    private async Task DeleteAsync()
     {
         if (!ReadInt("Enter department ID to delete: ", out int id))
             return;
 
         Console.Write("Are you sure? (y/n): ");
+
         if (!string.Equals(Console.ReadLine(), "y",
             StringComparison.OrdinalIgnoreCase))
             return;
 
-        Console.WriteLine(
-            _departmentService.DeleteDepartment(id)
-                ? "Department deleted successfully."
-                : "Could not delete department. It may not exist or may have employees assigned.");
+        try
+        {
+            bool result =
+                await _departmentService.DeleteDepartmentAsync(id);
+
+            Console.WriteLine(
+                result
+                    ? "Department deleted successfully."
+                    : "Could not delete department. It may not exist or may have employees assigned.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private static bool ReadInt(string prompt, out int value)
     {
         Console.Write(prompt);
+
         if (int.TryParse(Console.ReadLine(), out value))
             return true;
 

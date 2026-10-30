@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using EmployeeManagementSystem.Models;
 using EmployeeManagementSystem.Services;
 
@@ -17,7 +18,7 @@ public class EmployeeMenu
         _departmentService = new DepartmentService();
     }
 
-    public void Show()
+    public async Task ShowAsync()
     {
         while (true)
         {
@@ -39,13 +40,13 @@ public class EmployeeMenu
                     ViewById();
                     break;
                 case "3":
-                    Add();
+                    await AddAsync();
                     break;
                 case "4":
-                    Update();
+                    await UpdateAsync();
                     break;
                 case "5":
-                    Delete();
+                    await DeleteAsync();
                     break;
                 case "0":
                     return;
@@ -97,7 +98,7 @@ public class EmployeeMenu
             $"Salary: {employee.Salary:F2} | Age: {employee.Age}");
     }
 
-    private void Add()
+    private async Task AddAsync()
     {
         Console.Write("Employee name: ");
         string name = Console.ReadLine() ?? "";
@@ -119,13 +120,22 @@ public class EmployeeMenu
             Age = age
         };
 
-        Console.WriteLine(
-            _employeeService.AddEmployee(employee)
-                ? "Employee added successfully."
-                : "Could not add employee. Check the details, department ID, or duplicate email.");
+        try
+        {
+            bool result = await _employeeService.AddEmployeeAsync(employee);
+
+            Console.WriteLine(
+                result
+                    ? "Employee added successfully."
+                    : "Could not add employee. Check the details, department ID, or duplicate email.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private void Update()
+    private async Task UpdateAsync()
     {
         if (!ReadInt("Enter employee ID to update: ", out int id))
             return;
@@ -187,13 +197,22 @@ public class EmployeeMenu
             existing.Age = age;
         }
 
-        Console.WriteLine(
-            _employeeService.UpdateEmployee(existing)
-                ? "Employee updated successfully."
-                : "Could not update employee. Check the details.");
+        try
+        {
+            bool result = await _employeeService.UpdateEmployeeAsync(existing);
+
+            Console.WriteLine(
+                result
+                    ? "Employee updated successfully."
+                    : "Could not update employee. Check the details.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private void Delete()
+    private async Task DeleteAsync()
     {
         if (!ReadInt("Enter employee ID to delete: ", out int id))
             return;
@@ -203,10 +222,19 @@ public class EmployeeMenu
             StringComparison.OrdinalIgnoreCase))
             return;
 
-        Console.WriteLine(
-            _employeeService.DeleteEmployee(id)
-                ? "Employee deleted successfully."
-                : "Could not delete employee.");
+        try
+        {
+            bool result = await _employeeService.DeleteEmployeeAsync(id);
+
+            Console.WriteLine(
+                result
+                    ? "Employee deleted successfully."
+                    : "Could not delete employee.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private static bool ReadInt(string prompt, out int value)

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using EmployeeManagementSystem.Data;
+using EmployeeManagementSystem.Models;
 
+using System.Text.Json;
 using EmployeeManagementSystem.Models;
 using EmployeeManagementSystem.Repositories;
 
@@ -12,11 +14,13 @@ public class EmployeeService
 {
     private readonly EmployeeRepository _employeeRepository;
     private readonly DepartmentRepository _departmentRepository;
+    private readonly AuditLogService _auditLogService;
 
     public EmployeeService()
     {
         _employeeRepository = new EmployeeRepository();
         _departmentRepository = new DepartmentRepository();
+        _auditLogService = new AuditLogService();
     }
 
     public List<Employee> GetAllEmployees()
@@ -32,7 +36,8 @@ public class EmployeeService
         return _employeeRepository.GetById(employeeId);
     }
 
-    public bool AddEmployee(Employee employee)
+    // Add Employee
+    public async Task<bool> AddEmployeeAsync(Employee employee)
     {
         if (string.IsNullOrWhiteSpace(employee.EmployeeName) ||
             string.IsNullOrWhiteSpace(employee.Email) ||
@@ -49,10 +54,38 @@ public class EmployeeService
         if (department == null)
             return false;
 
-        return _employeeRepository.Add(employee);
+        bool isAdded = _employeeRepository.Add(employee);
+
+        if (!isAdded)
+            return false;
+
+        string newValues = JsonSerializer.Serialize(new
+        {
+            employee.EmployeeName,
+            employee.Email,
+            employee.DepartmentId,
+            employee.Salary,
+            employee.Age
+        });
+
+        bool auditSaved = await _auditLogService.CreateAuditLogAsync(
+            "INSERT",
+            "Employee",
+            employee.EmployeeId,
+            $"Added employee {employee.EmployeeName}",
+            null,
+            newValues
+        );
+
+        if (!auditSaved)
+            throw new InvalidOperationException(
+                "Employee was added, but its audit log could not be saved.");
+
+        return true;
     }
 
-    public bool UpdateEmployee(Employee employee)
+    // Update Employee
+    public async Task<bool> UpdateEmployeeAsync(Employee employee)
     {
         if (employee.EmployeeId <= 0 ||
             string.IsNullOrWhiteSpace(employee.EmployeeName) ||
@@ -70,14 +103,92 @@ public class EmployeeService
         if (department == null)
             return false;
 
-        return _employeeRepository.Update(employee);
+        // Get existing employee before updating
+        var existingEmployee =
+            _employeeRepository.GetById(employee.EmployeeId);
+
+        if (existingEmployee == null)
+            return false;
+
+        string oldValues = JsonSerializer.Serialize(new
+        {
+            existingEmployee.EmployeeName,
+            existingEmployee.Email,
+            existingEmployee.DepartmentId,
+            existingEmployee.Salary,
+            existingEmployee.Age
+        });
+
+        bool isUpdated = _employeeRepository.Update(employee);
+
+        if (!isUpdated)
+            return false;
+
+        string newValues = JsonSerializer.Serialize(new
+        {
+            employee.EmployeeName,
+            employee.Email,
+            employee.DepartmentId,
+            employee.Salary,
+            employee.Age
+        });
+
+        bool auditSaved = await _auditLogService.CreateAuditLogAsync(
+            "UPDATE",
+            "Employee",
+            employee.EmployeeId,
+            $"Updated employee {employee.EmployeeName}",
+            oldValues,
+            newValues
+        );
+
+        if (!auditSaved)
+            throw new InvalidOperationException(
+                "Employee was updated, but its audit log could not be saved.");
+
+        return true;
     }
 
-    public bool DeleteEmployee(int employeeId)
+    // Delete Employee
+    public async Task<bool> DeleteEmployeeAsync(int employeeId)
     {
         if (employeeId <= 0)
             return false;
 
-        return _employeeRepository.Delete(employeeId);
+        // Get employee details before deletion
+        var employee =
+            _employeeRepository.GetById(employeeId);
+
+        if (employee == null)
+            return false;
+
+        string oldValues = JsonSerializer.Serialize(new
+        {
+            employee.EmployeeName,
+            employee.Email,
+            employee.DepartmentId,
+            employee.Salary,
+            employee.Age
+        });
+
+        bool isDeleted = _employeeRepository.Delete(employeeId);
+
+        if (!isDeleted)
+            return false;
+
+        bool auditSaved = await _auditLogService.CreateAuditLogAsync(
+            "DELETE",
+            "Employee",
+            employeeId,
+            $"Deleted employee {employee.EmployeeName}",
+            oldValues,
+            null
+        );
+
+        if (!auditSaved)
+            throw new InvalidOperationException(
+                "Employee was deleted, but its audit log could not be saved.");
+
+        return true;
     }
 }

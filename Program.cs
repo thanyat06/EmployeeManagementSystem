@@ -7,7 +7,7 @@ namespace EmployeeManagementSystem;
 
 internal class Program
 {
-    private static void Main()
+    static async Task Main(string[] args)
     {
         var employeeMenu = new EmployeeMenu();
         var departmentMenu = new DepartmentMenu();
@@ -25,10 +25,10 @@ internal class Program
             switch (Console.ReadLine())
             {
                 case "1":
-                    employeeMenu.Show();
+                    await employeeMenu.ShowAsync();
                     break;
                 case "2":
-                    departmentMenu.Show();
+                    await departmentMenu.ShowAsync();
                     break;
                 case "3":
                     attendanceMenu.Show();
