@@ -152,7 +152,7 @@ public class DepartmentService
 
         if (!isDeleted)
             return false;
-
+        
         bool isLogged = await _auditLogService.CreateAuditLogAsync(
             "DELETE",
             "Department",

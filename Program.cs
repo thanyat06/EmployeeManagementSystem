@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using EmployeeManagementSystem.Menus;
 
 namespace EmployeeManagementSystem;
@@ -12,6 +13,7 @@ internal class Program
         var employeeMenu = new EmployeeMenu();
         var departmentMenu = new DepartmentMenu();
         var attendanceMenu = new AttendanceMenu();
+        var auditLogMenu = new AuditLogMenu();
 
         while (true)
         {
@@ -19,6 +21,7 @@ internal class Program
             Console.WriteLine("1. Employee Management");
             Console.WriteLine("2. Department Management");
             Console.WriteLine("3. Attendance Management");
+            Console.WriteLine("4. Audit Log Management");
             Console.WriteLine("0. Exit");
             Console.Write("Enter your choice: ");
 
@@ -32,6 +35,9 @@ internal class Program
                     break;
                 case "3":
                     attendanceMenu.Show();
+                    break;
+                case "4":
+                    await auditLogMenu.ShowAsync();
                     break;
                 case "0":
                     Console.WriteLine("Exiting application. Goodbye!");

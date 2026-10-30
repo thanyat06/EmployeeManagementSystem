@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using EmployeeManagementSystem.Data;
 using EmployeeManagementSystem.Models;
-
 using System.Text.Json;
-using EmployeeManagementSystem.Models;
 using EmployeeManagementSystem.Repositories;
 
 namespace EmployeeManagementSystem.Services;
